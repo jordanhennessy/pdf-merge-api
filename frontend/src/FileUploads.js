@@ -1,34 +1,25 @@
-import React, {Component} from "react";
+import React, {useState} from "react";
 import SortableList from "./SortableList";
 import {arrayMoveImmutable} from "array-move";
 
-export default class FileUploads extends Component {
+function FileUploads() {
 
-    constructor(props) {
-        super(props);
-        this.onFileChange = this.onFileChange.bind(this);
-        this.onSubmit = this.onSubmit.bind(this);
-        this.state = {
-            selectedFiles: null
-        }
+    const [filesSelected, setFilesSelected] = useState(null);
+
+    const onFileChange = (e) => {
+        setFilesSelected(e.target.files);
     }
 
-    onFileChange(e) {
-        this.setState({selectedFiles: e.target.files})
+    const onSortEnd = ({oldIndex, newIndex}) => {
+        setFilesSelected(arrayMoveImmutable(filesSelected, oldIndex, newIndex));
     }
 
-    onSortEnd({oldIndex, newIndex}) {
-        this.setState(({selectedFiles}) => ({
-            selectedFiles: arrayMoveImmutable(selectedFiles, oldIndex, newIndex),
-        }))
-    }
-
-    async onSubmit(e) {
+    const onSubmit = async (e) => {
         e.preventDefault();
 
         let formData = new FormData();
-        for (const key of Object.keys(this.state.selectedFiles)) {
-            formData.append("files", this.state.selectedFiles[key])
+        for (const key of Object.keys(filesSelected)) {
+            formData.append("files", filesSelected[key])
         }
 
         await fetch("/merge", {
@@ -41,24 +32,25 @@ export default class FileUploads extends Component {
             })
     }
 
-    render() {
-        return (
-            <div className="container">
-                <div className="row">
-                    <form onSubmit={this.onSubmit}>
-                        <h3>PDF Merger</h3>
-                        <div className="form-group">
-                            <input type="file" name="selectedFiles" onChange={this.onFileChange} multiple/>
-                        </div>
-                        <div className="form-group">
-                            <button className="btn btn-primary" type="submit">Upload</button>
-                        </div>
-                    </form>
-                    <div className="container">
-                        {(this.state.selectedFiles) ? <SortableList items={this.state.selectedFiles} onSortEnd={this.onSortEnd}/> : ""}
+
+    return (
+        <div className="container">
+            <div className="row">
+                <form onSubmit={onSubmit}>
+                    <h3>PDF Merger</h3>
+                    <div className="form-group">
+                        <input type="file" name="selectedFiles" onChange={onFileChange} multiple/>
                     </div>
+                    <div className="form-group">
+                        <button className="btn btn-primary" type="submit">Upload</button>
+                    </div>
+                </form>
+                <div className="container">
+                    {(filesSelected) ? <SortableList items={filesSelected} onSortEnd={onSortEnd}/> : ""}
                 </div>
             </div>
-        )
-    }
+        </div>
+    )
 }
+
+export default FileUploads;
