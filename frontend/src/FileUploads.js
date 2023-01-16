@@ -1,53 +1,74 @@
-import React, {Component} from "react";
+import React, { useState } from "react";
+import { useDropzone } from "react-dropzone";
+import 
 
-export default class FileUploads extends Component {
+const FileUpload = () => {
+  const [files, setFiles] = useState([]);
 
-    constructor(props) {
-        super(props);
-        this.onFileChange = this.onFileChange.bind(this);
-        this.onSubmit = this.onSubmit.bind(this);
-        this.state = {
-            selectedFiles: null
-        }
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: "application/pdf",
+    onDrop: acceptedFiles => {
+      setFiles([...files, ...acceptedFiles]);
+    }
+  });
+
+  const handleUpload = async (e) => {
+    e.preventDefault();
+
+    let formData = new FormData();
+    for (const key of Object.keys(files)) {
+      formData.append("files", files[key])
     }
 
-    onFileChange(e) {
-        this.setState({selectedFiles: e.target.files})
-    }
+    await fetch("/merge", {
+      method: "POST",
+      body: formData
+    }).then(result => result.blob())
+        .then(blob => {
+          let file = window.URL.createObjectURL(blob);
+          window.location.assign(file);
+        })
+  };
 
-    async onSubmit(e) {
-        e.preventDefault();
+  const handleReorder = (dragIndex, hoverIndex) => {
+    const draggedFile = files[dragIndex];
+    setFiles(
+      update(files, {
+        $splice: [
+          [dragIndex, 1],
+          [hoverIndex, 0, draggedFile]
+        ]
+      })
+    );
+  };
 
-        let formData = new FormData();
-        for (const key of Object.keys(this.state.selectedFiles)) {
-            formData.append("files", this.state.selectedFiles[key])
-        }
+  return (
+    <div {...getRootProps()}>
+      <input {...getInputProps()} />
+      <div>
+        <h2>Drag and drop files here</h2>
+        <ul>
+          {files.map((file, index) => (
+            <li key={file.path}>
+              <div>
+                <span>{file.path}</span>
+              </div>
+              <div>
+                <Draggable
+                  index={index}
+                  onDragEnd={handleReorder}
+                >
+                </Draggable>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+      {files.length > 0 && (
+        <button onClick={handleUpload}>Upload files</button>
+      )}
+    </div>
+  );
+};
 
-        await fetch("/merge", {
-            method: "POST",
-            body: formData
-        }).then(result => result.blob())
-            .then(blob => {
-                let file = window.URL.createObjectURL(blob);
-                window.location.assign(file)
-            })
-    }
-
-    render() {
-        return (
-            <div className="container">
-                <div className="row">
-                    <form onSubmit={this.onSubmit}>
-                        <h3>PDF Merger</h3>
-                        <div className="form-group">
-                            <input type="file" name="selectedFiles" onChange={this.onFileChange} multiple/>
-                        </div>
-                        <div className="form-group">
-                            <button className="btn btn-primary" type="submit">Upload</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        )
-    }
-}
+export default FileUpload;
