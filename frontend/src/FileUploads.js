@@ -1,6 +1,6 @@
 import React, {useState} from "react";
-import SortableList from "./SortableList";
 import {arrayMoveImmutable} from "array-move";
+import {SortableContainer, SortableElement} from "react-sortable-hoc";
 
 function FileUploads() {
 
@@ -32,6 +32,22 @@ function FileUploads() {
             })
     }
 
+    const SortableItem = SortableElement(({ value, index}) => (
+        <div className="list-card">
+            <div className="file-name">{value}</div>
+        </div>
+    ))
+
+    const SortableList = SortableContainer(({ items }) => {
+        return (
+            <div className="list">
+                {items.map((value, index) => (
+                    <SortableItem value={value} index={index} key={`item-${index}`}/>
+                ))}
+            </div>
+        )
+    })
+
 
     return (
         <div className="container">
@@ -46,7 +62,7 @@ function FileUploads() {
                     </div>
                 </form>
                 <div className="container">
-                    {(filesSelected) ? <SortableList items={filesSelected} onSortEnd={onSortEnd}/> : ""}
+                    {(filesSelected) ? <SortableList items={filesSelected} onSortEnd={onSortEnd} axis="xy"/> : ""}
                 </div>
             </div>
         </div>
