@@ -1,4 +1,6 @@
 import React, {Component} from "react";
+import SortableList from "./SortableList";
+import {arrayMoveImmutable} from "array-move";
 
 export default class FileUploads extends Component {
 
@@ -13,6 +15,12 @@ export default class FileUploads extends Component {
 
     onFileChange(e) {
         this.setState({selectedFiles: e.target.files})
+    }
+
+    onSortEnd({oldIndex, newIndex}) {
+        this.setState(({selectedFiles}) => ({
+            selectedFiles: arrayMoveImmutable(selectedFiles, oldIndex, newIndex),
+        }))
     }
 
     async onSubmit(e) {
@@ -46,6 +54,9 @@ export default class FileUploads extends Component {
                             <button className="btn btn-primary" type="submit">Upload</button>
                         </div>
                     </form>
+                    <div className="container">
+                        {(this.state.selectedFiles) ? <SortableList items={this.state.selectedFiles} onSortEnd={this.onSortEnd}/> : ""}
+                    </div>
                 </div>
             </div>
         )
