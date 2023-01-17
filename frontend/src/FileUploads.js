@@ -2,12 +2,17 @@ import React, {useState} from "react";
 import {arrayMoveImmutable} from "array-move";
 import {SortableContainer, SortableElement} from "react-sortable-hoc";
 
-function FileUploads() {
+export default function FileUploads() {
 
-    const [filesSelected, setFilesSelected] = useState(null);
+    let filesSelected = null;
+
+    const setFilesSelected = (arg) => {
+        filesSelected = arg;
+    }
 
     const onFileChange = (e) => {
         setFilesSelected(e.target.files);
+        console.log(filesSelected);
     }
 
     const onSortEnd = ({oldIndex, newIndex}) => {
@@ -32,17 +37,19 @@ function FileUploads() {
             })
     }
 
-    const SortableItem = SortableElement(({ value, index}) => (
+    const SortableItem = SortableElement(({ value, index }) => (
         <div className="list-card">
             <div className="file-name">{value}</div>
         </div>
     ))
 
-    const SortableList = SortableContainer(({ items }) => {
+    const SortableList = SortableContainer(({ files }) => {
         return (
             <div className="list">
-                {items.map((value, index) => (
-                    <SortableItem value={value} index={index} key={`item-${index}`}/>
+                {console.log("list being called")}
+                {console.log(filesSelected)}
+                {Array.from(filesSelected).map((file, index) => (
+                    <SortableItem value={file.filename} index={index} key={`item-${index}`}/>
                 ))}
             </div>
         )
@@ -62,11 +69,9 @@ function FileUploads() {
                     </div>
                 </form>
                 <div className="container">
-                    {(filesSelected) ? <SortableList items={filesSelected} onSortEnd={onSortEnd} axis="xy"/> : ""}
+                    {filesSelected ? <SortableList items={filesSelected} onSortEnd={onSortEnd}/> : ""}
                 </div>
             </div>
         </div>
     )
 }
-
-export default FileUploads;
