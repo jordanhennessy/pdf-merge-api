@@ -1,22 +1,12 @@
 import React, {useState} from "react";
-import {arrayMoveImmutable} from "array-move";
-import {SortableContainer, SortableElement} from "react-sortable-hoc";
 
 export default function FileUploads() {
 
-    let filesSelected = null;
-
-    const setFilesSelected = (arg) => {
-        filesSelected = arg;
-    }
+    const [filesSelected, setFilesSelected] = useState(null);
 
     const onFileChange = (e) => {
         setFilesSelected(e.target.files);
         console.log(filesSelected);
-    }
-
-    const onSortEnd = ({oldIndex, newIndex}) => {
-        setFilesSelected(arrayMoveImmutable(filesSelected, oldIndex, newIndex));
     }
 
     const onSubmit = async (e) => {
@@ -37,39 +27,53 @@ export default function FileUploads() {
             })
     }
 
-    const SortableItem = SortableElement(({ value, index }) => (
-        <div className="list-card">
-            <div className="file-name">{value}</div>
-        </div>
-    ))
+    const removeFile = (index) => {
+        let updatedFiles = [...filesSelected].filter((val, i) => i !== index );
+        setFilesSelected(updatedFiles);
+    }
 
-    const SortableList = SortableContainer(({ files }) => {
-        return (
-            <div className="list">
-                {console.log("list being called")}
-                {console.log(filesSelected)}
-                {Array.from(filesSelected).map((file, index) => (
-                    <SortableItem value={file.filename} index={index} key={`item-${index}`}/>
-                ))}
-            </div>
-        )
-    })
 
 
     return (
         <div className="container">
             <div className="row">
                 <form onSubmit={onSubmit}>
-                    <h3>PDF Merger</h3>
-                    <div className="form-group">
-                        <input type="file" name="selectedFiles" onChange={onFileChange} multiple/>
+                    <div>
+                        <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+                            <div className="container-fluid">
+                                <a className="navbar-brand" href="/">PDF Merger</a>
+                            </div>
+                        </nav>
                     </div>
                     <div className="form-group">
-                        <button className="btn btn-primary" type="submit">Upload</button>
+                        <input className="btn btn-outline-primary" type="file" name="selectedFiles" onChange={onFileChange} multiple/>
+                    </div>
+                    <div className="form-group">
+                        <button className="btn btn-outline-primary" type="submit">Upload</button>
                     </div>
                 </form>
-                <div className="container">
-                    {filesSelected ? <SortableList items={filesSelected} onSortEnd={onSortEnd}/> : ""}
+                <div className="py-4">
+                    <table className="table border shadow">
+                        <thead>
+                        <tr>
+                            <th scope="col">File name</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {
+                            (filesSelected) ?
+                            (Array.from(filesSelected).map((file, index) => (
+                                <tr key={index}>
+                                    <td>{file.name}</td>
+                                    <td>
+                                        <button className="btn btn-outline-danger mx-2" onClick={() => removeFile(index)}>Delete</button>
+                                    </td>
+                                </tr>
+                            ))
+                            ): null}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
