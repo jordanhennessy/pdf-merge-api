@@ -1,0 +1,5 @@
+fastapi
+PyPDF2
+requests
+streamlit
+streamlit-draggable-list
