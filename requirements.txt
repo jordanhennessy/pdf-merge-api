@@ -3,3 +3,5 @@ PyPDF2
 requests
 streamlit
 streamlit-draggable-list
+uvicorn
+python-multipart
