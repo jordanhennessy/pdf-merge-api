@@ -19,8 +19,7 @@ def send_request(pdfs):
             result.write(chunk)
     result_path = working_dir + "/result.pdf"
     with open(result_path, "rb") as result:
-        st.download_button("Download merged file", data=result, file_name="merged.pdf", mime="application/pdf",
-                           on_click=cleanup)
+        st.download_button("Download merged file", data=result, file_name="merged.pdf", mime="application/pdf")
 
 
 def callback():
@@ -29,6 +28,7 @@ def callback():
         for element in drag_list:
             names.append(element["name"])
     send_request(names)
+    cleanup()
 
 
 def cleanup():
