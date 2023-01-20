@@ -19,8 +19,8 @@ def send_request(pdfs):
             result.write(chunk)
     result_path = working_dir + "/result.pdf"
     with open(result_path, "rb") as result:
-        st.download_button("Download merged file", data=result, file_name="merged.pdf", mime="application/pdf")
-        cleanup()
+        st.download_button("Download merged file", data=result, file_name="merged.pdf", mime="application/pdf",
+                           on_click=cleanup)
 
 
 def callback():
@@ -34,8 +34,10 @@ def callback():
 def cleanup():
     entries = os.listdir(working_dir)
     for entry in entries:
+        print(entry)
         if entry.endswith(".pdf"):
             os.remove(os.path.join(working_dir, entry))
+            print(f"removed: {entry}")
 
 
 def create_draggable_list(names):
