@@ -1,51 +1,28 @@
-import os
+from os import path, mkdir, remove
 import streamlit as st
-import requests as r
 from st_draggable_list import DraggableList
+from utils import merger
 
-URL = "http://localhost:8000/merge"
-working_dir = os.getcwd()
-
-
-def send_request(pdfs):
-    data = []
-    for pdf in pdfs:
-        path = working_dir + "/" + pdf
-        if os.path.exists(path):
-            data.append(("files", open(path, "rb")))
-    response = r.post(URL, files=data)
-    with open("result.pdf", "wb") as result:
-        for chunk in response.iter_content(chunk_size=8192):
-            result.write(chunk)
-    result_path = working_dir + "/result.pdf"
-    with open(result_path, "rb") as result:
-        st.download_button("Download merged file", data=result, file_name="../merged.pdf", mime="application/pdf")
+file_dir = "/tmp/files"
 
 
 def callback():
-    names = []
-    if len(drag_list) > 0:
-        for element in drag_list:
-            names.append(element["name"])
-    send_request(names)
-    cleanup()
+    filenames = [element["name"] for element in drag_list]
+    result_path = merger.merge_by_name(filenames)
+    cleanup(filenames)
+    with open(result_path, "rb") as result:
+        st.download_button("Download merged file", data=result, mime="application/pdf")
 
 
-def cleanup():
-    entries = os.listdir(working_dir)
-    for entry in entries:
-        print(entry)
-        if entry.endswith(".pdf"):
-            os.remove(os.path.join(working_dir, entry))
-            print(f"removed: {entry}")
+def cleanup(names):
+    for name in names:
+        remove(f"{file_dir}/{name}")
 
 
 def create_draggable_list(names):
     data = []
-
     for name in names:
         data.append({"id": name, "order": len(data) + 1, "name": name})
-
     return DraggableList(data)
 
 
@@ -57,9 +34,12 @@ st.markdown("---")
 files = st.file_uploader("Select files for upload", type="pdf", accept_multiple_files=True)
 
 if len(files) > 0:
+    if not path.exists(file_dir):
+        mkdir(file_dir)
     for file in files:
-        if not os.path.exists(working_dir + "/" + file.name):
-            with open(file.name, "wb") as f:
-                f.write(file.getbuffer())
+        with open(f"{file_dir}/{file.name}", "wb") as f:
+            f.write(file.getbuffer())
     st.button("Merge", on_click=callback)
     drag_list = create_draggable_list([file.name for file in files])
+
+
