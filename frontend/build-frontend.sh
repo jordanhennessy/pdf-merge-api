@@ -1,3 +1,5 @@
 #!/bin/bash
 
-docker build -f Dockerfile-frontend -t pdf-merge-frontend . 
+cd ..
+
+docker build -f frontend/Dockerfile-frontend -t pdf-merge-frontend .
