@@ -58,7 +58,7 @@ if len(files) > 0:
             with open(f"{file_dir}/{file.name}", "wb") as f:
                 f.write(file.getbuffer())
         st.button("Merge", on_click=callback)
-    drag_list = create_draggable_list([file.name for file in files])
+        drag_list = create_draggable_list([file.name for file in files])
 
     if st.session_state["merged"]:
         with open(st.session_state["result_path"], "rb") as result:
