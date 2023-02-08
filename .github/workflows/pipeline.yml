@@ -15,5 +15,5 @@ jobs:
           image: jordanhennessy/pdf-merge-api
           tag: latest
           registry: docker.io
-          username: ${{  }}
-          password: ${{  }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
