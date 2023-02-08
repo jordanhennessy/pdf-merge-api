@@ -19,6 +19,6 @@ jobs:
           directory: frontend
           tag: latest
           registry: docker.io
-          dockerfile: Dockerfile-frontend
+          dockerfile: frontend/Dockerfile-frontend
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
