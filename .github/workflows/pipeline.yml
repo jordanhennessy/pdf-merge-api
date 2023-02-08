@@ -10,7 +10,7 @@ jobs:
     name: Build Docker Image
     steps:
       - name: Build image
-      - uses: mr-smithers-excellent/docker-build-push@v4
+        uses: mr-smithers-excellent/docker-build-push@v4
         with:
           image: jordanhennessy/pdf-merge-api
           tag: latest
